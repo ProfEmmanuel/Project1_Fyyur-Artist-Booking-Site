@@ -163,34 +163,39 @@ def create_venue_form():
 def create_venue_submission():
   # DONE: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  form = VenueForm()
   body = request.form.to_dict()
-  print("This is body : ->  ", body)
-  print('Genres : ->', request.form.getlist('genres'))
+  # print("This is body : ->  ", body)
+  # print('Genres : ->', request.form.getlist('genres'))
   name = body['name']
-  try:
-    venue = Venue(name= body.get('name'),
-      city= body['city'],
-      state = body.get('state'),
-      address = body.get('address'),
-      phone = body.get('phone'),
-      image_link = body.get('image_link'),
-      facebook_link = body.get('facebook_link'),
-      genres = ",".join(request.form.getlist('genres')), # TODO: Getting all genres
-      website = body.get('website'),
-      seeking_talent = bool(body.get('seeking_talent')),
-      seeking_description = body.get('seeking_description')
-      )
-    db.session.add(venue)
-    db.session.commit()
-    # on successful db insert, flash success
-    flash('Venue ' + venue.name + ' was successfully listed!')
-  except :
-    db.session.rollback()
-    flash('An error occurred. Venue ' + name +' could not be listed.')
-  # DONE: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+  if form.validate_on_submit():
+    try:
+      venue = Venue(name= body.get('name'),
+        city= body['city'],
+        state = body.get('state'),
+        address = body.get('address'),
+        phone = body.get('phone'),
+        image_link = body.get('image_link'),
+        facebook_link = body.get('facebook_link'),
+        genres = ",".join(request.form.getlist('genres')), # TODO: Getting all genres
+        website = body.get('website'),
+        seeking_talent = bool(body.get('seeking_talent')),
+        seeking_description = body.get('seeking_description')
+        )
+      db.session.add(venue)
+      db.session.commit()
+      # on successful db insert, flash success
+      flash('Venue ' + venue.name + ' was successfully listed!')
+    except :
+      db.session.rollback()
+      flash('An error occurred. Venue ' + name +' could not be listed.')
+    # DONE: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  else:
+    for field, message in form.errors.items():
+      flash(field + ' - ' + str(message), 'danger')
+  return render_template('pages/home.html', form=form)
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
@@ -408,30 +413,35 @@ def create_artist_submission():
   # called upon submitting the new artist listing form
   # DONE: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
+  form = ArtistForm()
   body = request.form.to_dict()
   name = body['name']
-  try:
-    artist = Artist(name= body.get('name'),
-      city= body['city'],
-      state = body.get('state'),
-      phone = body.get('phone'),
-      image_link = body.get('image_link'),
-      facebook_link = body.get('facebook_link'),
-      genres = ",".join(request.form.getlist('genres')), 
-      website = body.get('website'),
-      seeking_venue = bool(body.get('seeking_venue')),
-      seeking_description = body.get('seeking_description')
-      )
-    db.session.add(artist)
-    db.session.commit()
-    # on successful db insert, flash success
-    flash('Artist ' + artist.name + ' was successfully listed!')
-  except Exception as Error:
-    db.session.rollback()
-    flash('An error occurred. Artist ' + name + '  ' + str(Error) +' could not be listed.')
+  if form.validate_on_submit():
+    try:
+      artist = Artist(name= body.get('name'),
+        city= body['city'],
+        state = body.get('state'),
+        phone = body.get('phone'),
+        image_link = body.get('image_link'),
+        facebook_link = body.get('facebook_link'),
+        genres = ",".join(request.form.getlist('genres')), 
+        website = body.get('website'),
+        seeking_venue = bool(body.get('seeking_venue')),
+        seeking_description = body.get('seeking_description')
+        )
+      db.session.add(artist)
+      db.session.commit()
+      # on successful db insert, flash success
+      flash('Artist ' + artist.name + ' was successfully listed!')
+    except Exception as Error:
+      db.session.rollback()
+      flash('An error occurred. Artist ' + name + '  ' + str(Error) +' could not be listed.')
+  else:
+    for field, message in form.errors.items():
+      flash(field + ' - ' + str(message), 'danger')
   finally:
     db.session.close()
-  return render_template('pages/home.html')
+  return render_template('pages/home.html', form=form)
 
 
 #  Shows
@@ -448,7 +458,7 @@ def shows():
     data.append({
       'venue_id': show.venue_id,
       'venue_name': show.venue.name,
-      'artist_id': show.artist.name,
+      'artist_id': show.artist_id,
       'artist_name': show.artist.name,
       'artist_image_link': show.artist.image_link,
       'start_time': str(show.start_time)
