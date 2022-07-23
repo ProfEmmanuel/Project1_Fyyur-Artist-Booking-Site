@@ -436,11 +436,12 @@ def create_artist_submission():
     except Exception as Error:
       db.session.rollback()
       flash('An error occurred. Artist ' + name + '  ' + str(Error) +' could not be listed.')
+    finally:
+      db.session.close()
   else:
     for field, message in form.errors.items():
       flash(field + ' - ' + str(message), 'danger')
-  finally:
-    db.session.close()
+
   return render_template('pages/home.html', form=form)
 
 
