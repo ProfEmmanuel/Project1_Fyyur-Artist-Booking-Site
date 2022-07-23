@@ -10,4 +10,6 @@ DEBUG = True
 
 
 # TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = '<Put your local database url>'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:presidenT98!@localhost:5432/project2'
+# SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+SQLALCHEMY_TRACK_MODIFICATIONS = False
